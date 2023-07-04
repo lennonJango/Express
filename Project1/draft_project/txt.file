@@ -1,0 +1,15 @@
+Aqui irão conter alguns exemplos antigos do código em percurso de desenvolvimento
+
+-Esta é a forma antiga de criar routes para o nosso aplicativo node
+// Forma antiga
+// //Traz todos dados
+// app.get("/api/tours/v1", getAllTours)
+// //Atualiza os dados
+// app.post("/api/tours/v1", atualizarTour)
+// //Respondendo com parâmetros
+// app.get("/api/tours/v1/:id", getOneTour)
+// // Patch
+// app.patch("/api/tours/v1/:id", criarTour);
+// //Delete method
+// app.delete("/api/tours/v1/:id", deleteTour);
+// Forma Melhorada
