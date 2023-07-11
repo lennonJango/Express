@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon db.js"
+    "start": "nodemon app.js"
   },
   "author": "Lennon Jango",
   "license": "ISC",

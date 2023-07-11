@@ -1,14 +1,4 @@
-const fs = require("fs");
-// const { data } = require("jquery");
-
-const dadosUsers = JSON.parse(
-  fs.readFileSync(
-    `${__dirname}/../dev-data/data/users.json`,
-    "utf-8",
-    (erro) => console.log(`Ficheiro nao encontrado ${erro}`)
-    // console.log(data)
-  )
-);
+const User = require("./../modelo/userModel");
 
 exports.checkBody = (req, res, next) => {
   if (req.body.name && req.body.password && req.body.id)
@@ -19,31 +9,13 @@ exports.checkBody = (req, res, next) => {
   next();
 };
 
-// exports.checkBody2 = (req, res, next) => {
-  
-//   if (req.body.name && req.body.description) {
-//     return res.status(401).json({
-//       status: "Fail",
-//       message:"Falta o name e a descrição do documento"
-//     })
-//   }
-//   next();
-// }
-exports.checkID = (req, res, next, value) => {
-  console.log(`id ${value}`);
-  // const id = req.params.id * 1;
-  if (value > dadosUsers.length) {
-    return res.status(404).json({ status: "Fail", message: "ID Invalido" });
-  }
-  next();
-};
-
 exports.getAllUsers = function (req, res) {
+  const user = User.find();
   res.status(200).json({
     status: "Success",
     TimeRequest: req.TimeRequest,
     data: {
-      users: dadosUsers,
+      user,
     },
   });
 };
@@ -90,8 +62,8 @@ exports.getUser = function (req, res) {
     status: "Success",
     time: req.requesTime,
     user: {
-       user
-    }
+      user,
+    },
   });
 };
 
