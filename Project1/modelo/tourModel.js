@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 // Esta a estrutura da nossa collection
 const tourSchema = new mongoose.Schema({
-  nome: {
+  name: {
     unique: true,
     required: true,
     type: String,
@@ -13,7 +13,7 @@ const tourSchema = new mongoose.Schema({
     required: [true, "A tour deve ter uma duração"],
   },
 
-  groupSize: {
+  maxGroupSize: {
     type: Number,
     required: [true, "A tour deve ter um numero de grupos limite"],
   },

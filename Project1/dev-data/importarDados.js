@@ -1,6 +1,8 @@
 const app = require("./../app");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const fs = require("fs");
+const tour = require('./../modelo/tourModel');
 dotenv.config({
   path: "./../config.env",
 });
@@ -23,5 +25,32 @@ const db = mongoose
 app.listen(process.env.porta, () => {
   console.log(`Servidor is running on port ${process.env.PORTA}`);
 });
- 
-                     
+
+//Para importar dados
+
+const file = JSON.parse(fs.readFileSync(`./data/tour-simple.json`, "utf-8"));
+ console.log(file);
+
+const importData = async () => {
+  try {
+    await tour.insertMany(file);
+    console.log("Dados salvos");
+  } catch (erro) {
+    console.log(erro);
+  }
+};
+
+const deleteAll = async () => {
+  try {
+      await tour.deleteMany().save();
+      console.log("dados apagdos");
+      
+  } catch {
+    console.log(Error);
+  }
+};
+
+
+ importData();
+//   deleteAll();
+

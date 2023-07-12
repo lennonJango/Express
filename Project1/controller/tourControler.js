@@ -11,7 +11,14 @@ exports.checkBody = (req, res, next) => {
 
 exports.getAllTours = async function (req, res) {
   try {
-    const Tours = await tour.find();
+    let Tours;
+
+    if (req.query != null) {
+      Tours = await tour.find(req.query);
+    } else {
+      Tours = await tour.find();
+    }
+
     console.log(Tours);
     res.status(200).json({
       status: "Sucesso",
