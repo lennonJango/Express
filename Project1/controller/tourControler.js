@@ -1,3 +1,4 @@
+const { query } = require("express");
 const tour = require("../modelo/tourModel");
 
 exports.checkBody = (req, res, next) => {
@@ -12,14 +13,34 @@ exports.checkBody = (req, res, next) => {
 exports.getAllTours = async function (req, res) {
   try {
     let Tours;
+    //  Construido a query
+    const queryObj = { ...req.query };
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
 
-    if (req.query != null) {
-      Tours = await tour.find(req.query);
-    } else {
-      Tours = await tour.find();
+    // Filtro avançado
+    let resultadoDaQuery = JSON.stringify(queryObj);
+    resultadoDaQuery = resultadoDaQuery.replace(
+      /\b(gte|gt|lte|lt)\b/g,
+      (match) => `$${match}`
+    );
+
+    console.log(resultadoDaQuery);
+
+    // Buscando consoate a query
+    Tours = await tour.find(JSON.parse(resultadoDaQuery));
+
+   
+   
+    // console.log(req.query.sort);
+    // Sorteado os dados
+    if (req.query.sort!=null) {
+      Tours = Tours.sort(req.query.sort);
+      
     }
 
-    console.log(Tours);
+
+    // Mandado a resposta
     res.status(200).json({
       status: "Sucesso",
       numerosDeTours: Tours.length,
