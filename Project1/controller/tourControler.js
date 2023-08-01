@@ -1,5 +1,6 @@
 const { query } = require("express");
 const tour = require("../modelo/tourModel");
+const ApiFeatures = require("../features/API_features.JS");
 
 exports.checkBody = (req, res, next) => {
   if (req.body.name && req.body.price)
@@ -29,55 +30,14 @@ exports.get_5_cheap_tours = (req, res, next) => {
 
 exports.getAllTours = async function (req, res) {
   try {
-    //  Construido a query
-    const queryObj = { ...req.query };
-    const excludedFields = ["page", "sort", "limit", "fields"];
-    excludedFields.forEach((el) => delete queryObj[el]);
+    const filter = new ApiFeatures(tour.find(), req.query)
+      .filter()
+      .sorting()
+      .fields()
+      .pagination();
 
-    // Filtro avançado
-    let resultadoDaQuery = JSON.stringify(queryObj);
-    resultadoDaQuery = resultadoDaQuery.replace(
-      /\b(gte|gt|lte|lt)\b/g,
-      (match) => `$${match}`
-    );
-    // console.log(resultadoDaQuery);
-    // Buscando consoate a query
-    let query = tour.find(JSON.parse(resultadoDaQuery));
+    const Tours = await filter.query;
 
-    // Sorteado os dados
-    if (req.query.sort) {
-      // Como fazer um sort by
-      const sortBy = req.query.sort.split(",").join(" ");
-      query = query.sort(sortBy);
-    } else {
-      //  Caso o cliente nao tenha sorteado
-      query = query.sort("-createdAt");
-    }
-
-    // Limitados os dados que nos queremos
-    if (req.query.fields) {
-      const fields = req.query.fields.split(",").join(" ");
-      // Seleciona valores especificos que vem do eq.query.fields
-      query = query.select(fields);
-    } else {
-      query = query.select("-__v");
-    }
-
-    // Paginacao
-
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
-    const skip = (page - 1) * limit;
-
-    // Query de calculo
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const numberTour = await tour.countDocuments();
-      if (skip >= numberTour) throw new Error("A pagina nao existe");
-    }
-
-    const Tours = await query;
     // Mandado a resposta
     res.status(200).json({
       status: "Sucesso",
