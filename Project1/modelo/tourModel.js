@@ -60,6 +60,8 @@ const tourSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
+    // Quando queremos que esse campo nao seja selecionado na query
+    select: false,
   },
 
   startDate: [Date],
