@@ -11,6 +11,8 @@ exports.checkBody = (req, res, next) => {
   next();
 };
 
+
+
 // Para obter os 5 melhores tours
 // O uso de midleware
 exports.get_5_best_tours = (req, res, next) => {
@@ -49,14 +51,21 @@ exports.getAllTours = async function (req, res) {
   } catch (erro) {
     res.status(404).json({
       message: "Dados nao encontrados",
+      motivo: erro
     });
   }
 };
+
+
+
+
 
 exports.CriarTour = async function (req, res) {
   try {
     // Esta função do moongose cria um novo tour consoante aos dados que sao submetidos no body
     const newTour = await tour.create(req.body);
+
+    console.log(req.body);
 
     res.status(201).json({
       status: "Success",
@@ -67,7 +76,7 @@ exports.CriarTour = async function (req, res) {
   } catch (err) {
     res.status(400).json({
       status: "Fail",
-      message: `Motivo do erro : ${err}`,
+      message: `Motivo do erro : ${err.message}`,
     });
   }
 };
@@ -129,5 +138,69 @@ exports.deleteTour = async function (req, res) {
       message: "ID invalido",
       messageErro: `Motivo do erro ${Error}`,
     });
+  }
+};
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    // Este metodo deve agregar o array para apenas um elemento (funciona so que falta a datas)
+    const plan = await tour.aggregate([
+      { $unwind: "$images" },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+
+        $group: {
+          _id: { $month: "$startDates" },
+          numTours: { $sum: 1 },
+          Tours: {
+            $push: "$name",
+          },
+        },
+
+        $addFields: {
+          month: "$_id",
+        },
+
+        $project: {
+          _id: 0,
+        },
+        $sort: {
+          numTours: -1,
+        },
+
+        $limit: 6,
+      },
+    ]);
+
+    res.status(200).json({
+      status: "Sucess",
+      data: plan,
+    });
+  } catch (erro) {
+    res.status(404).json({
+      status: "Fail",
+      message: erro,
+    });
+  }
+};
+
+exports.getToursStatic = async (req, res) => {
+  // Este metodo permite calcular estaticas acerca das nossas tours
+  try {
+    const stats = tour.aggregate([
+
+      
+    ]);
+
+
+  } catch (erro) {
+    console.log(erro);
   }
 };

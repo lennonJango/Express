@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "start": "nodemon Server.js",
+    "start:prod":"NODE_ENV=production nodemon Server.js",
+    "debug": "ndb server.js"
   },
   "author": "Lennon Jango",
   "license": "ISC",
@@ -22,7 +24,9 @@
     "mongoose": "^7.3.1",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.22",
-    "prettier": "^2.8.8"
+    "prettier": "^2.8.8",
+    "slugify": "^1.6.6",
+    "validator": "^13.11.0"
   },
   "devDependencies": {
     "eslint": "^8.42.0",

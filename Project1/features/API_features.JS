@@ -17,6 +17,7 @@ class ApiFeatures {
     );
     // Buscando consoate a query
     this.query = this.query.find(JSON.parse(resultadoDaQuery));
+    
     return this;
   }
 
@@ -51,7 +52,7 @@ class ApiFeatures {
 
   pagination() {
     const page = this.queryString * 1 || 1;
-    const limit = this.queryString * 1 || 100;
+    const limit = this.queryString * 1 || 10;
     const skip = (page - 1) * limit;
 
     this.query = this.query.skip(skip).limit(limit);

@@ -8,6 +8,7 @@ const {
   checkBody,
   get_5_best_tours,
   get_5_cheap_tours,
+  getMonthlyPlan,
 } = require("../controller/tourControler");
 const router = express.Router();
 
@@ -19,6 +20,8 @@ const router = express.Router();
 
 router.route("/cheap-tours").get(get_5_cheap_tours, getAllTours);
 router.route("/best-5-cheaps-tours").get(get_5_best_tours, getAllTours);
+
+router.route("/monthly-plan/:year").get(getMonthlyPlan);
 
 router.route("/").get(getAllTours).post(CriarTour, checkBody);
 // Pegado os dados com parâmetros

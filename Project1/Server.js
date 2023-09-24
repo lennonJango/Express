@@ -1,4 +1,4 @@
-const app = require("./../app");
+const app = require("./app");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config({
@@ -20,18 +20,36 @@ const db = mongoose
     console.log("Erro ao conectar base de dados", erro);
   });
 
+  
 app.listen(process.env.porta, () => {
   console.log(`Servidor is running on port ${process.env.PORTA}`);
 });
+
+// Test
+
   
+
+
  
 
 
 
+
+
+
+
  
+
 
 
         
+
+
+
+
     
 
   
+
+
+
