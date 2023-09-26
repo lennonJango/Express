@@ -1,6 +1,7 @@
 const { query } = require("express");
 const tour = require("../modelo/tourModel");
 const ApiFeatures = require("../features/API_features.JS");
+const catchAsyncErro = require("../features/AppErrosAsync")
 
 exports.checkBody = (req, res, next) => {
   if (req.body.name && req.body.price)
@@ -30,8 +31,11 @@ exports.get_5_cheap_tours = (req, res, next) => {
   next();
 };
 
-exports.getAllTours = async function (req, res) {
-  try {
+
+
+
+exports.getAllTours = catchAsyncErro( async (req, res,next) =>{
+  
     const filter = new ApiFeatures(tour.find(), req.query)
       .filter()
       .sorting()
@@ -47,21 +51,15 @@ exports.getAllTours = async function (req, res) {
       dados: {
         Tours,
       },
-    });
-  } catch (erro) {
-    res.status(404).json({
-      message: "Dados nao encontrados",
-      motivo: erro
-    });
-  }
-};
+    }) 
+})
 
 
 
 
 
-exports.CriarTour = async function (req, res) {
-  try {
+exports.CriarTour =  catchAsyncErro (async(req, res,next)=> {
+  
     // Esta função do moongose cria um novo tour consoante aos dados que sao submetidos no body
     const newTour = await tour.create(req.body);
 
@@ -73,16 +71,11 @@ exports.CriarTour = async function (req, res) {
       data: Date.now(),
       dados: newTour,
     });
-  } catch (err) {
-    res.status(400).json({
-      status: "Fail",
-      message: `Motivo do erro : ${err.message}`,
-    });
-  }
-};
+ 
+});
 
-exports.getOneTour = async function (req, res) {
-  try {
+exports.getOneTour = catchAsyncErro (async(req, res,next) => {
+ 
     // Esta função do moongose  faz uma pequisa na base de dados consoante ao id  que é passado no paramento da url
     const OneTour = await tour.findById(req.params.id);
 
@@ -92,19 +85,13 @@ exports.getOneTour = async function (req, res) {
         OneTour,
       },
     });
-  } catch (err) {
-    res.status(404).json({
-      status: "Fail",
-      message: "Tour não encontrado",
-      erroMessage: `Motivo do erro ${err} `,
-    });
-  }
-};
+  
+});
 
-exports.atualizarTour = async function (req, res) {
-  try {
-    // Esta função moongose atualiza os dados consoante ao id que é passado no paramento da URI
-    const updatedTour = await tour.findByIdAndUpdate(req.params.id, req.body, {
+exports.atualizarTour = catchAsyncErro ( async(req, res,next) => {
+
+  //  função moongose atualiza os dados consoante ao id que é passado no paramento da URI
+    const updatedTour =await tour.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
 
@@ -115,39 +102,31 @@ exports.atualizarTour = async function (req, res) {
         updatedTour,
       },
     });
-  } catch (err) {
-    res.status(204).json({
-      status: "Fail",
-      message: "Id invalido",
-      erroMessage: `Motivo do erro ${err}`,
-    });
-  }
-};
+  
+});
 
-exports.deleteTour = async function (req, res) {
-  try {
+exports.deleteTour = catchAsyncErro( async (req, res,next)=> {
+ 
     const deletedTour = await tour.findByIdAndDelete(req.params.id);
+    
     res.status(204).json({
       status: "Success",
       message: "Ficheiro Apagado com sucesso",
       data: null,
     });
-  } catch {
-    res.status(402).json({
-      status: "Fail",
-      message: "ID invalido",
-      messageErro: `Motivo do erro ${Error}`,
-    });
-  }
-};
+  
+   
+});
 
-exports.getMonthlyPlan = async (req, res) => {
-  try {
-    const year = req.params.year * 1;
+exports.getMonthlyPlan = catchAsyncErro(async(req, res,next) => {
+   
+  
+  const year = req.params.year * 1;
 
     // Este metodo deve agregar o array para apenas um elemento (funciona so que falta a datas)
     const plan = await tour.aggregate([
       { $unwind: "$images" },
+
       {
         $match: {
           startDates: {
@@ -183,24 +162,37 @@ exports.getMonthlyPlan = async (req, res) => {
       status: "Sucess",
       data: plan,
     });
-  } catch (erro) {
-    res.status(404).json({
-      status: "Fail",
-      message: erro,
-    });
-  }
-};
+ 
+})
 
-exports.getToursStatic = async (req, res) => {
+exports.getToursStatic = catchAsyncErro( async (req, res,next) => {
   // Este metodo permite calcular estaticas acerca das nossas tours
-  try {
-    const stats = tour.aggregate([
+  
+    const stats = await tour.aggregate([
+      {
+        $match:{ratingsAverage:{$gte:4.5}}
+      },
+    
+       {
 
-      
+        $group:{
+        _id: {$toUpper:"$difficulty"},
+        numTours:{$sum :1},
+         avgPrice:{$avg:"$price"},
+         minPrice:{$min:"$price"},
+         maxPrice:{$max:"$price"},
+       }
+      },
+      {
+        $sort:{avgPrice:1}
+      }
     ]);
 
+    res.status(200).json({
+       Status:"Sucess",
+       Data :{
+        stats
+       }
 
-  } catch (erro) {
-    console.log(erro);
-  }
-};
+    })
+})
