@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon Server.js",
-    "start:prod":"NODE_ENV=production nodemon Server.js",
+    "start:prod":"NODE_ENV=Production nodemon Server.js",
+    "start:dev":"NODE_ENV=Dev nodemon Server.js",
     "debug": "ndb server.js"
   },
   "author": "Lennon Jango",

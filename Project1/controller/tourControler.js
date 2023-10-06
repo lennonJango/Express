@@ -1,7 +1,9 @@
 const { query } = require("express");
 const tour = require("../modelo/tourModel");
 const ApiFeatures = require("../features/API_features.JS");
-const catchAsyncErro = require("../features/AppErrosAsync")
+const catchAsyncErro = require("../features/AppErrosAsync");
+const AppErrosAsync = require("../features/AppError");
+const AppError = require("../features/AppError");
 
 exports.checkBody = (req, res, next) => {
   if (req.body.name && req.body.price)
@@ -65,6 +67,8 @@ exports.CriarTour =  catchAsyncErro (async(req, res,next)=> {
 
     console.log(req.body);
 
+
+    // Mandado a resposta 
     res.status(201).json({
       status: "Success",
       message: "Novo Tour criando",
@@ -79,6 +83,14 @@ exports.getOneTour = catchAsyncErro (async(req, res,next) => {
     // Esta função do moongose  faz uma pequisa na base de dados consoante ao id  que é passado no paramento da url
     const OneTour = await tour.findById(req.params.id);
 
+
+    // Adicionado 404 Error's
+    if(!OneTour){
+
+     return next(new AppError("Nao conseguimos achar o tour com esse ID",404));
+    }
+
+    // Mandado a resposta
     res.status(200).json({
       status: "Success",
       data: {
@@ -95,6 +107,11 @@ exports.atualizarTour = catchAsyncErro ( async(req, res,next) => {
       new: true,
     });
 
+    if(!OneTour){
+      return next(new AppError("Nao conseguimos achar o tour com esse ID",404));
+     }
+
+// Mandado a resposta
     res.status(201).json({
       status: "Success",
       message: "Dados Atualizados",
@@ -108,7 +125,13 @@ exports.atualizarTour = catchAsyncErro ( async(req, res,next) => {
 exports.deleteTour = catchAsyncErro( async (req, res,next)=> {
  
     const deletedTour = await tour.findByIdAndDelete(req.params.id);
-    
+
+
+    if(!deletedTour){
+      return next(new AppError("Nao conseguimos achar o tour com esse ID",404));
+     }
+
+    // Mandado a resposta
     res.status(204).json({
       status: "Success",
       message: "Ficheiro Apagado com sucesso",
