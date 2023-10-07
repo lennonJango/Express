@@ -1,4 +1,6 @@
-const User = require("./../modelo/userModel");
+const User = require("../modelo/userModel");
+const catchAsyncErro = require("../features/AppErrosAsync");
+const AppError = require("../controller/errorController");
 
 exports.checkBody = (req, res, next) => {
   if (req.body.name && req.body.password && req.body.id)
@@ -9,67 +11,84 @@ exports.checkBody = (req, res, next) => {
   next();
 };
 
-exports.getAllUsers = function (req, res) {
-  const user = User.find();
-  res.status(200).json({
-    status: "Success",
-    TimeRequest: req.TimeRequest,
-    data: {
-      user,
-    },
-  });
-};
+exports.getAllUsers = catchAsyncErro(async (req, res, next) => {
+  const user = await User.find();
+  if (!user) {
+    return next(new AppError("Nenhum user foi encontrado", 404));
+  }
 
-exports.createNewUser = function (req, res) {
-  const newId = dadosUsers[dadosUsers.length - 1].id + 1;
-  const newUser = Object.assign({ id: newId }, req.body);
-  dadosUsers.push(newUser);
-  fs.writeFile(
-    `${__dirname}../dev-data/data/users.json`,
-    JSON.stringify(dadosUsers),
-    (error) => console.log("Ficheiro nao encontrado")
-  );
+  res.status(200).json({
+    Mensagem: "Sucesso",
+    Tamanho: user.length,
+    Dados: user,
+  });
+});
+
+exports.createNewUser = catchAsyncErro(async (req, res) => {
+  await User.create(req.body);
 
   res.status(201).json({
-    status: "success",
-    message: "Dados atualizados",
-    time: req.TimeRequest,
-    dados: {
-      user: dadosUsers,
-    },
+    Staus: "Sucess",
+    message: "User criado com sucesso",
   });
-};
+});
 
-exports.deleteUser = function (req, res) {
-  // const id = req.params.id * 1;
-  // if (id < dadosUsers.length)
-  //   return res.status(404).json({
-  //     status: "Fail",
-  //     message: "ID invalido",
-  //   });
+exports.deleteUser = catchAsyncErro(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+
+  if (!user) {
+    return next(
+      new AppError(
+        "Nao foi possivel apagar o user porque nenhum user foi encontrado",
+        404
+      )
+    );
+  }
 
   res.status(204).json({
     status: "Success",
     message: "User apagado",
   });
-};
+});
 
-exports.getUser = function (req, res) {
-  const id = req.params.id * 1;
-  const user = dadosUsers.find((user) => user.id === id);
-  console.log(user);
+exports.getUser = catchAsyncErro(async (req, res, next) => {
+  const oneUser = await User.findById(req.params.id);
+
+  console.log(oneUser);
+
+  if (!oneUser) {
+    return next(
+      new AppError(
+        "Nenhum user foi encontrado com esse Id,tente novamente",
+        400
+      )
+    );
+  }
+
   res.status(200).json({
     status: "Success",
     time: req.requesTime,
     user: {
-      user,
+      oneUser,
     },
   });
-};
+});
 
-exports.updateUser = function (req, res) {
-  res.status(203).json({
+exports.updateUser = catchAsyncErro(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+
+  if (!user)
+    return next(
+      new AppError(
+        "Nao conseguimos achar nenhum user com esse ID,tente novamente",
+        404
+      )
+    );
+
+  res.status(204).json({
     status: "Success",
     time: req.requesTime,
   });
-};
+});

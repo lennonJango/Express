@@ -15,7 +15,7 @@ dotenv.config({
 const app = express();
 // Middler
 app.use(express.json());
-if ((process.env.NODE_ENV == "Development")) {
+if (process.env.NODE_ENV == "Development") {
   //Middler de terceiros
   app.use(morgan("dev"));
 }
@@ -28,7 +28,7 @@ app.use(express.static(`${__dirname}/public`));
 // My onw midlear
 app.use((req, res, next) => {
   console.log("Hello from middlware");
-   
+
   next();
 });
 
@@ -38,13 +38,11 @@ app.use("/api/tours/v1", tourRouter);
 app.use("/api/users/v1", userRouter);
 
 // Erro para as routas (ERRO ROUTE HAdling)
-app.all("*",(req,res,next)=>{
-  
-    next(new AppError(`Cant find ${req.originalUrl} on this server`,404));
-})
+app.all("*", (req, res, next) => {
+  next(new AppError(`Cant find ${req.originalUrl} on this server`, 404));
+});
 
-// Especificado quatro args na funcao o express ira saber que é um midllware function erro 
+// Especificado quatro args na funcao o express ira saber que é um midllware function erro
 app.use(erroHaldling);
 
 module.exports = app;
- 

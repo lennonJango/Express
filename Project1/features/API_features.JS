@@ -17,7 +17,7 @@ class ApiFeatures {
     );
     // Buscando consoate a query
     this.query = this.query.find(JSON.parse(resultadoDaQuery));
-    
+
     return this;
   }
 
